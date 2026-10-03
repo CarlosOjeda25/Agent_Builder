@@ -1,0 +1,48 @@
+# Environment & Secrets (CRITICAL)
+.env
+*.env
+!.env.example
+.env.local
+.env.*.local
+
+# Python Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+.uv/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# CrewAI & Agent Builder Runtime
+.crewai/
+output/*
+!output/.gitkeep
+intercambio/*
+!intercambio/.gitkeep
+.intercambio/
+report.md
+agent_builder/output/*
+!agent_builder/output/.gitkeep
+agent_builder/intercambio/*
+!agent_builder/intercambio/.gitkeep
+
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs & Temporary Files
+*.log
+scratch/

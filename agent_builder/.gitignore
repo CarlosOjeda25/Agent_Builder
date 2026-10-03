@@ -1,0 +1,25 @@
+# Environment & Secrets (CRITICAL)
+.env
+*.env
+!.env.example
+
+# Virtual Environments
+.venv/
+venv/
+env/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+
+# Runtime artifacts
+.crewai/
+output/*
+!output/.gitkeep
+intercambio/*
+!intercambio/.gitkeep
+report.md
+
+# OS
+.DS_Store
+Thumbs.db

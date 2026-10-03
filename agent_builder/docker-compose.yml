@@ -1,0 +1,61 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: agent_builder_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ~/.ollama:/root/.ollama
+    environment:
+      # Performance tuning for 4GB VRAM GPU
+      - OLLAMA_NUM_PARALLEL=1          # Una solicitud a la vez (GPU pequeña)
+      - OLLAMA_MAX_LOADED_MODELS=2     # Solo 2 modelos en VRAM simultáneo
+      - OLLAMA_KEEP_ALIVE=10m          # Mantener modelo cargado 10 min tras último uso
+      - OLLAMA_HOST=0.0.0.0            # Accesible desde otros containers
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1                  # Solo 1 GPU (explícito, no 'all')
+              capabilities: [gpu]
+    networks:
+      - agent_builder_net
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  agent_builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agent_builder
+    stdin_open: true
+    tty: true
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      # LLM provider config — apunta al servicio Ollama
+      - OLLAMA_HOST=http://agent_builder_ollama:11434
+      - API_BASE=http://agent_builder_ollama:11434
+      - OPENAI_API_BASE=http://agent_builder_ollama:11434/v1
+      - OPENAI_API_KEY=ollama           # Ollama no requiere API key real
+      # Timeouts generosos para modelos en CPU parcial
+      - CREWAI_REQUEST_TIMEOUT=600
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - agent_builder_net
+    volumes:
+      - ./output:/app/output
+      - ./intercambio:/app/intercambio   # Carpeta de intercambio entre teams
+
+networks:
+  agent_builder_net:
+    name: agent_builder_net
+    driver: bridge

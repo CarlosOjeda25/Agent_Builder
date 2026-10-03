@@ -1,0 +1,78 @@
+{
+  // Display name for this crew
+  "name": "Agent_Builder",
+
+  // Agents to include — each matches an agents/<name>.jsonc file
+  "agents": [
+    "product_owner",
+    "analista_de_requerimientos",
+    "revisor_de_calidad_de_requerim",
+    "facilitador_refinamiento",
+    "lider_desarrollo",
+    "arquitecto_software",
+    "desarrollador_backend_senior",
+    "desarrollador_backend_semi_senior",
+    "desarrollador_backend_junior",
+    "desarrollador_frontend",
+    "ingeniero_devops",
+    "lider_qa",
+    "qa_semi_senior",
+    "qa_junior",
+    "qa_automatizacion"
+  ],
+
+  // Task definitions — executed in order for sequential process
+  "tasks": [
+    {
+      "name": "analiza_la_solicitud_inicial_task",
+      "description": "Analiza la solicitud inicial del usuario: {solicitud_usuario}. Extrae SOLO lo que aparece en ella. Identifica el problema, los usuarios, los objetivos (máximo 5) y las restricciones. Registra supuestos y preguntas abiertas en lugar de inventar información. A partir del análisis, define máximo 10 funcionalidades core con ID (F-01, F-02...), nombre, descripción de una línea (qué hace, no cómo), valor de negocio y prioridad MoSCoW (debe haber al menos una Must). Lista qué queda explícitamente fuera del alcance (mínimo 3 ítems) y añade entre 2 y 4 métricas de éxito medibles. No menciones tecnologías, arquitectura ni base de datos.",
+      "expected_output": "Documento en Markdown con estas secciones exactas:\n# PRD\n## 1. Objetivo del producto\n## 2. Problema que resuelve\n## 3. Público objetivo\n## 4. Alcance (incluido y fuera de alcance)\n## 5. Funcionalidades core (tabla con columnas: ID | Funcionalidad | Descripción | Valor de negocio | Prioridad MoSCoW)\n## 6. Métricas de éxito (2 a 4 medibles)\n## 7. Supuestos y preguntas abiertas",
+      "agent": "product_owner",
+      "output_file": "output/prd.md"
+    },
+    {
+      "name": "lee_el_prd_generado_task",
+      "description": "Lee el PRD generado en la tarea anterior. Identifica los actores que interactúan con el sistema y agrupa las funcionalidades F-xx en máximo 6 épicas. Para cada épica desglosa historias de usuario atómicas con formato [ID-001]. Cada historia debe ser independiente, pequeña y verificable (INVEST). Cada historia incluye 5 secciones: (1) Perspectiva de Negocio con Como/Quiero/Para + Métricas de éxito medibles, (2) Arquitectura C4 Pendiente, (3) Contratos de Integración Pendiente, (4) Estrategia de Testing con Gherkin (mínimo 3 escenarios: feliz, alterno, error/borde, usando Dado/Cuando/Entonces con un solo 'Cuando', valores medibles, sin términos vagos), (5) Definition of Done Pendiente. Las secciones 2, 3 y 5 se completan en fases posteriores de refinamiento técnico.",
+      "expected_output": "Documento en Markdown con:\n# Historias de Usuario y Criterios de Aceptación\n## Actores del Sistema (tabla: Actor | Descripción)\n## Épicas (tabla: ID E-xx | Nombre | Funcionalidades F-xx | Prioridad)\n\nPara cada historia:\n### [ID-001] — Título de la Historia\n**Épica:** E-xx | **Prioridad:** [MoSCoW] | **Story Points:** Pendiente\n\n**1. Perspectiva de Negocio**\nComo [rol], Quiero [acción], Para [valor]\nMétricas de Éxito: [2-3 métricas medibles]\n\n**2. Arquitectura y Componentes**\nPendiente de refinamiento técnico\n\n**3. Contratos de Integración**\nPendiente de refinamiento técnico\n\n**4. Estrategia de Testing**\nEscenario 1 [feliz]: Dado/Cuando/Entonces\nEscenario 2 [alterno]: Dado/Cuando/Entonces\nEscenario 3 [error/borde]: Dado/Cuando/Entonces\nDatos de Prueba: Pendiente\nSelectores UI (data-testid): Pendiente\n\n**5. Definition of Done**\nPendiente\n\n---\n## Preguntas para el PO (lista o 'Ninguna')",
+      "agent": "analista_de_requerimientos",
+      "context": ["analiza_la_solicitud_inicial_task"],
+      "output_file": "output/historias_de_usuario.md"
+    },
+    {
+      "name": "revisa_el_listado_de_task",
+      "description": "Audita exhaustivamente el listado de Historias de Usuario contra el PRD. Valida que: (1) cada funcionalidad F-xx tenga al menos una historia, (2) cada historia referencie una F-xx que exista en el PRD, calculando cobertura = cubiertas / total * 100. Para cada historia aplica checklist INVEST respondiendo Sí/No: (a) Formato Como/quiero/para correcto, (b) INVEST, (c) Mínimo 3 escenarios (feliz, alterno, error), (d) Valores medibles sin términos vagos, (e) Gherkin bien formado con un solo 'Cuando'. Emite el veredicto final: 'Listo para Desarrollo' únicamente si todas las funcionalidades Must tienen cobertura y todas las historias están aprobadas; caso contrario 'Requiere otra iteración'. Lista las correcciones obligatorias numeradas por historia.",
+      "expected_output": "Reporte en Markdown con:\n# Reporte de Auditoría y Calidad de Requerimientos\n## 1. Veredicto Final ('Listo para Desarrollo' o 'Requiere otra iteración')\n## 2. Resumen General (Total de historias, aprobadas, con cambios, cobertura del PRD en %)\n## 3. Cobertura y Trazabilidad (Tabla: F-xx | Historias asociadas | Estado)\n## 4. Auditoría INVEST por Historia (Tabla: ID | Formato | INVEST | Escenarios | Medible | Gherkin | Veredicto | Observaciones y corrección sugerida)\n## 5. Funcionalidades del PRD sin cobertura (lista o 'Ninguna')\n## 6. Historias sin trazabilidad al PRD (lista o 'Ninguna')\n## 7. Correcciones Obligatorias Numeradas",
+      "agent": "revisor_de_calidad_de_requerim",
+      "context": ["analiza_la_solicitud_inicial_task", "lee_el_prd_generado_task"],
+      "output_file": "output/reporte_calidad.md"
+    },
+    {
+      "name": "aceptar_backlog_task",
+      "description": "Verifica que las historias finales respondan a los objetivos y a las funcionalidades Must del PRD. Responde cada 'Pregunta para el PO' planteada por el Analista con una decisión concreta o con 'Pendiente de confirmación del usuario'. Emite la decisión de aceptación del backlog (Aceptado / Aceptado con reservas / Devuelto) y ordena el backlog final por prioridad MoSCoW y valor de negocio.",
+      "expected_output": "Documento en Markdown con:\n# Backlog Final Aceptado\n## 1. Decisión del Product Owner (Aceptado / Aceptado con reservas / Devuelto)\n## 2. Respuestas a Preguntas del Analista\n## 3. Backlog Priorizado (Tabla: Orden | HU | Prioridad MoSCoW | Justificación de valor)\n## 4. Riesgos y Supuestos Pendientes",
+      "agent": "product_owner",
+      "context": ["analiza_la_solicitud_inicial_task", "lee_el_prd_generado_task", "revisa_el_listado_de_task"],
+      "output_file": "output/backlog_final.md"
+    },
+    {
+      "name": "preparar_refinamiento_task",
+      "description": "Lee el backlog final y las historias generadas. Selecciona las primeras historias del backlog priorizado (las siguientes en entrar a un sprint). Para cada una prepara preguntas específicas para tres teams. Desarrollo: viabilidad técnica, dependencias, tamaño y si cabe en un sprint. QA: testabilidad de los criterios, datos y entornos de prueba, riesgo de regresión. Infraestructura: entornos, accesos y permisos, despliegue, seguridad y capacidad. Máximo 3 preguntas por historia y por team; cada una debe poder responderse con un dato concreto. Define la plantilla de intercambio.",
+      "expected_output": "Documento en Markdown con:\n# Paquete de Refinamiento Técnico\n## 1. Historias a Refinar (Tabla: Orden | HU | Título | Prioridad)\n## 2. Preguntas para Desarrollo (Por cada HU: 1) ... 2) ... 3) ...)\n## 3. Preguntas para QA (Por cada HU: 1) ... 2) ... 3) ...)\n## 4. Preguntas para Infraestructura (Por cada HU: 1) ... 2) ... 3) ...)\n## 5. Instrucciones de Intercambio (Archivos esperados en carpeta intercambio/)",
+      "agent": "facilitador_refinamiento",
+      "context": ["lee_el_prd_generado_task", "aceptar_backlog_task"],
+      "output_file": "output/paquete_refinamiento.md"
+    }
+  ],
+
+  // Execution process
+  "process": "sequential",
+
+  // Enable verbose logging during execution
+  "verbose": true,
+
+  // Enable crew memory
+  "memory": false,
+
+  // Runtime input defaults
+  "inputs": {}
+}

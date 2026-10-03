@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "agent-builder": {
+      "command": "python",
+      "args": [
+        "c:/Users/duvan/Proyectos/Agent Builder/mcp_server.py"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "generate_requirements"
+      ]
+    }
+  }
+}
